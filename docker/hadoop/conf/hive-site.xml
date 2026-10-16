@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- Metastore: table definitions live in an embedded Derby database on a volume.
+       (Production: a standalone metastore service backed by PostgreSQL/MySQL.) -->
+  <property><name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:derby:;databaseName=/data/metastore_db;create=true</value></property>
+  <property><name>hive.metastore.warehouse.dir</name><value>/user/hive/warehouse</value></property>
+  <!-- compile HiveQL into MapReduce jobs that run on YARN -->
+  <property><name>hive.execution.engine</name><value>mr</value></property>
+  <property><name>hive.server2.enable.doAs</name><value>false</value></property>
+  <property><name>hive.server2.thrift.bind.host</name><value>0.0.0.0</value></property>
+  <property><name>hive.server2.thrift.port</name><value>10000</value></property>
+  <property><name>hive.server2.webui.port</name><value>10002</value></property>
+  <property><name>hive.msck.path.validation</name><value>ignore</value></property>
+  <property><name>hive.exec.dynamic.partition.mode</name><value>nonstrict</value></property>
+  <property><name>hive.security.authorization.manager</name>
+    <value>org.apache.hadoop.hive.ql.security.authorization.plugin.sqlstd.SQLStdConfOnlyAuthorizerFactory</value></property>
+</configuration>

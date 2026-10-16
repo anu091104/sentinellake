@@ -1,0 +1,58 @@
+{
+  "machine": {
+    "cpus": 16,
+    "python": "3.12.3",
+    "ram_gb": null
+  },
+  "storage": {
+    "rows": 2395896,
+    "bytes": {
+      "JSON (raw)": 552653521,
+      "JSON + gzip": 73532708,
+      "Parquet + snappy": 88407657,
+      "Parquet + gzip": 55406587,
+      "Parquet + zstd": 52285783,
+      "ORC + zlib": 48068113
+    },
+    "mb": {
+      "JSON (raw)": 527.1,
+      "JSON + gzip": 70.1,
+      "Parquet + snappy": 84.3,
+      "Parquet + gzip": 52.8,
+      "Parquet + zstd": 49.9,
+      "ORC + zlib": 45.8
+    },
+    "ratio_vs_json": {
+      "JSON (raw)": 1.0,
+      "JSON + gzip": 7.5,
+      "Parquet + snappy": 6.3,
+      "Parquet + gzip": 10.0,
+      "Parquet + zstd": 10.6,
+      "ORC + zlib": 11.5
+    }
+  },
+  "query": {
+    "description": "count, 5xx rate and p95 per endpoint over all rows",
+    "json_seconds": 15.56,
+    "parquet_seconds": 3.28,
+    "speedup": 4.7
+  },
+  "partitioning": {
+    "partitions_total": 6,
+    "partitions_read": 1,
+    "full_scan_seconds": 0.38,
+    "pruned_seconds": 0.32,
+    "plan_shows_partition_filter": true,
+    "speedup": 1.2
+  },
+  "mapreduce": {
+    "map_tasks": 73,
+    "map_output_records": 2395896,
+    "shuffle_bytes_with_combiner": 46510,
+    "shuffle_bytes_without_combiner": 96663784,
+    "shuffle_reduction_pct": 99.952,
+    "seconds_with_combiner": 74.31,
+    "seconds_without_combiner": 69.8,
+    "note": "local runner (single machine) - shows the data-flow effect, not cluster speed"
+  }
+}

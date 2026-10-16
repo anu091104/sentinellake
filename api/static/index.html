@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SentinelLake console</title>
+<script src="/static/vendor/chart.umd.min.js"></script>
+<style>
+  /* vendored so the console works with no internet access (Archivo: SIL OFL, Chart.js: MIT) */
+  @font-face {
+    font-family: "Archivo"; font-style: normal; font-display: swap;
+    font-weight: 100 900; font-stretch: 62% 125%;
+    src: url(/static/vendor/archivo-latin-wdth-normal.woff2) format("woff2-variations");
+  }
+  :root {
+    --bg: #E9EDF1;
+    --panel: #FFFFFF;
+    --ink: #1A2430;
+    --ink-2: #566372;
+    --rule: #CDD5DD;
+    --ok: #3E8E6A;
+    --ok-soft: #B9DCCB;
+    --warn: #C68A0F;
+    --down: #B3261E;
+    --nodata: #D9DFE5;
+    --cobalt: #2F5DA8;
+  }
+  * { box-sizing: border-box; }
+  html { font-family: "Archivo", system-ui, sans-serif; font-variation-settings: "wdth" 100; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.45;
+         font-variant-numeric: tabular-nums; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 28px;
+           padding: 20px 28px 14px; border-bottom: 1px solid var(--rule); }
+  h1 { margin: 0; font-size: 22px; font-weight: 800; font-variation-settings: "wdth" 118; letter-spacing: -0.01em; }
+  .asof { color: var(--ink-2); }
+  .range { margin-left: auto; display: flex; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+  .range button { font: inherit; border: 0; background: var(--panel); padding: 6px 14px; cursor: pointer; color: var(--ink-2); }
+  .range button + button { border-left: 1px solid var(--rule); }
+  .range button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  button:focus-visible, .svc:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; }
+
+  .summary { padding: 18px 28px; font-size: 19px; max-width: 70ch; }
+  .summary strong { font-weight: 700; }
+
+  main { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; padding: 0 28px 28px; }
+  section { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 18px 20px; min-width: 0; }
+  h2 { margin: 0 0 12px; font-size: 16px; font-weight: 700; }
+  .hint { color: var(--ink-2); font-size: 13px; margin: -8px 0 12px; }
+
+  /* the heartbeat strip: one tick per minute, per service */
+  .svc { display: grid; grid-template-columns: 96px minmax(0, 1fr) 64px 72px; gap: 12px; align-items: center;
+         padding: 9px 8px; border-radius: 6px; cursor: pointer; }
+  .svc:hover { background: #F2F5F8; }
+  .svc[aria-selected="true"] { background: #E3EAF4; }
+  .svc .name { font-weight: 700; font-variation-settings: "wdth" 112; }
+  .svc .num { text-align: right; color: var(--ink-2); font-size: 13px; }
+  .beats { display: flex; gap: 1px; height: 26px; }
+  .beats i { flex: 1 1 0; border-radius: 1px; background: var(--ok-soft); min-width: 0; }
+  .beats i.degraded { background: var(--warn); }
+  .beats i.down { background: var(--down); }
+  .beats i.nodata { background: var(--nodata); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--ink-2); font-size: 13px; margin-top: 10px; padding-left: 8px; }
+  .legend span { white-space: nowrap; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .legend .l-ok::before { background: var(--ok-soft); }
+  .legend .l-deg::before { background: var(--warn); }
+  .legend .l-down::before { background: var(--down); }
+
+  .chart { position: relative; height: 210px; }
+  .chart + h2 { margin-top: 18px; }
+
+  .incidents { grid-column: 1 / -1; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 600; color: var(--ink-2); padding: 6px 10px; border-bottom: 1px solid var(--rule); }
+  td { padding: 9px 10px; border-bottom: 1px solid #EEF1F4; vertical-align: top; }
+  .sev { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+  .sev.critical { background: #F6DAD8; color: var(--down); }
+  .sev.warning { background: #F7E8C6; color: #8A5D00; }
+  .open-dot { color: var(--down); font-weight: 700; }
+  .empty { color: var(--ink-2); padding: 18px 0; }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; padding: 0 16px 16px; }
+    header, .summary { padding-left: 16px; padding-right: 16px; }
+    .svc { grid-template-columns: 76px minmax(0, 1fr) 56px; }
+    .svc .p95 { display: none; }
+    .hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>SentinelLake</h1>
+  <span class="asof" id="asof">Loading…</span>
+  <div class="range" role="group" aria-label="Time range">
+    <button data-min="60" aria-pressed="true">1 hour</button>
+    <button data-min="180" aria-pressed="false">3 hours</button>
+    <button data-min="360" aria-pressed="false">6 hours</button>
+  </div>
+</header>
+
+<p class="summary" id="summary"></p>
+
+<main>
+  <section>
+    <h2>Service health, minute by minute</h2>
+    <p class="hint">Select a service to see its endpoints.</p>
+    <div id="services" role="listbox" aria-label="Services"></div>
+    <div class="legend"><span class="l-ok">Normal</span><span class="l-deg">Incident active</span><span class="l-down">5xx rate above 5%</span></div>
+  </section>
+
+  <section>
+    <h2 id="detail-title">p95 latency by endpoint</h2>
+    <div class="chart"><canvas id="latency"></canvas></div>
+    <h2>5xx error rate by endpoint</h2>
+    <div class="chart"><canvas id="errors"></canvas></div>
+  </section>
+
+  <section class="incidents">
+    <h2>Incidents</h2>
+    <table>
+      <thead><tr><th>Severity</th><th>What happened</th><th>Where</th><th class="hide-sm">Started</th><th class="hide-sm">Detected after</th><th>Lasted</th></tr></thead>
+      <tbody id="incidents"></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+const fmt = new Intl.NumberFormat("en-IN");
+const pct = v => v == null ? "–" : (v * 100).toFixed(2) + "%";
+const hhmm = iso => iso ? iso.slice(11, 16) : "–";
+const TYPE_TEXT = {
+  ERROR_BURST: "Burst of server errors",
+  LATENCY_SPIKE: "Sudden latency spike",
+  LATENCY_DRIFT: "Latency slowly degrading",
+  TRAFFIC_DROP: "Traffic dropped sharply",
+};
+const PALETTE = ["#2F5DA8", "#C2410C", "#0F766E", "#7C3AED", "#A16207"];
+
+let minutes = 60, selected = null, charts = {};
+
+async function getJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${url} returned ${r.status}`);
+  return r.json();
+}
+
+function renderServices(data) {
+  const box = document.getElementById("services");
+  box.innerHTML = "";
+  for (const s of data.services) {
+    const row = document.createElement("div");
+    row.className = "svc";
+    row.tabIndex = 0;
+    row.setAttribute("role", "option");
+    row.setAttribute("aria-selected", s.service === selected);
+    const beats = s.heartbeat.map(b =>
+      `<i class="${b.state === "ok" ? "" : b.state}" title="${hhmm(b.t)} UTC: ${fmt.format(b.requests)} req, ${pct(b.error_rate)} 5xx"></i>`).join("");
+    row.innerHTML = `<span class="name">${s.service}</span><span class="beats">${beats}</span>
+      <span class="num">${pct(s.error_rate)}</span><span class="num p95">${s.p95_ms ? Math.round(s.p95_ms) + " ms" : "–"}</span>`;
+    const pick = () => { selected = s.service; renderServices(data); loadDetail(); };
+    row.addEventListener("click", pick);
+    row.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    box.appendChild(row);
+  }
+}
+
+function renderSummary(data) {
+  const t = data.totals;
+  document.getElementById("asof").textContent = `Data up to ${hhmm(data.as_of)} UTC, ${data.as_of.slice(0, 10)}`;
+  const bad = data.services.filter(s => s.status !== "healthy").map(s => s.service);
+  const range = minutes === 60 ? "the last hour" : `the last ${minutes / 60} hours`;
+  document.getElementById("summary").innerHTML =
+    `<strong>${fmt.format(t.requests)}</strong> requests in ${range}, ` +
+    `<strong>${pct(t.error_rate)}</strong> of them failed with a server error. ` +
+    (t.open_incidents
+      ? `<strong>${t.open_incidents} incident${t.open_incidents > 1 ? "s" : ""} open</strong> on ${bad.join(", ")}.`
+      : `No incidents open right now${t.incidents_in_range ? `; ${t.incidents_in_range} occurred in this period` : ""}.`);
+}
+
+function lineChart(id, datasets, yLabel, yFmt) {
+  charts[id]?.destroy();
+  const xs = datasets.flatMap(d => d.data.map(p => p.x));
+  const step = (minutes <= 60 ? 10 : minutes <= 180 ? 30 : 60) * 60000;
+  charts[id] = new Chart(document.getElementById(id), {
+    type: "line",
+    data: { datasets },
+    options: {
+      animation: false, maintainAspectRatio: false, parsing: false, normalized: true,
+      interaction: { mode: "nearest", axis: "x", intersect: false },
+      scales: {
+        x: { type: "linear", min: Math.min(...xs), max: Math.max(...xs),
+             afterBuildTicks: axis => { const t = []; for (let v = Math.ceil(axis.min / step) * step; v <= axis.max; v += step) t.push({ value: v }); axis.ticks = t; },
+             ticks: { callback: v => new Date(v).toISOString().slice(11, 16), color: "#566372" }, grid: { display: false } },
+        y: { beginAtZero: true, title: { display: true, text: yLabel, color: "#566372" }, ticks: { callback: yFmt, color: "#566372" }, grid: { color: "#EEF1F4" } },
+      },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 10, boxHeight: 10, color: "#1A2430" } },
+        tooltip: { callbacks: { title: items => new Date(items[0].parsed.x).toISOString().slice(11, 16) + " UTC" } },
+      },
+      elements: { point: { radius: 0 }, line: { borderWidth: 1.8 } },
+    },
+  });
+}
+
+async function loadDetail() {
+  if (!selected) return;
+  const ts = await getJSON(`/api/services/${selected}/timeseries?minutes=${minutes}`);
+  document.getElementById("detail-title").textContent = `p95 latency by endpoint: ${selected}`;
+  const eps = Object.entries(ts.endpoints);
+  const mk = (key, scale) => eps.map(([ep, pts], i) => ({
+    label: ep, borderColor: PALETTE[i % PALETTE.length], backgroundColor: PALETTE[i % PALETTE.length],
+    data: pts.map(p => ({ x: Date.parse(p.t), y: p[key] * scale })),
+  }));
+  lineChart("latency", mk("p95_ms", 1), "milliseconds", v => v);
+  lineChart("errors", mk("error_rate", 100), "% of requests", v => v + "%");
+}
+
+async function loadIncidents() {
+  const list = await getJSON("/api/incidents?limit=30");
+  const body = document.getElementById("incidents");
+  if (!list.length) {
+    body.innerHTML = `<tr><td colspan="6" class="empty">No incidents yet. The detectors need about ten minutes of traffic to learn what normal looks like.</td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(i => {
+    const ttd = i.detected_at ? Math.round((Date.parse(i.detected_at) - Date.parse(i.opened_at)) / 60000) : null;
+    return `<tr>
+      <td><span class="sev ${i.severity}">${i.severity}</span>${i.status === "open" ? ' <span class="open-dot" title="still open">open</span>' : ""}</td>
+      <td><strong>${TYPE_TEXT[i.type] || i.type}</strong><br><span style="color:var(--ink-2)">${i.reason}</span></td>
+      <td>${i.service}<br><span style="color:var(--ink-2)">${i.endpoint}</span></td>
+      <td class="hide-sm">${hhmm(i.opened_at)} UTC</td>
+      <td class="hide-sm">${ttd == null ? "–" : ttd + " min"}</td>
+      <td>${i.duration_min} min</td></tr>`;
+  }).join("");
+}
+
+async function refresh() {
+  try {
+    const data = await getJSON(`/api/overview?minutes=${minutes}`);
+    if (!data.as_of) {
+      document.getElementById("asof").textContent = "Waiting for the first metrics";
+      document.getElementById("summary").textContent = "No data yet. Start the generator and the streaming job, then this page fills in within a minute.";
+      return;
+    }
+    if (!selected) {
+      const worst = [...data.services].sort((a, b) => b.open_incidents - a.open_incidents || b.error_rate - a.error_rate)[0];
+      selected = worst.service;
+    }
+    renderSummary(data);
+    renderServices(data);
+    await Promise.all([loadDetail(), loadIncidents()]);
+  } catch (e) {
+    document.getElementById("summary").textContent = `Could not reach the API (${e.message}). Check that the api container is running.`;
+  }
+}
+
+document.querySelectorAll(".range button").forEach(b => b.addEventListener("click", () => {
+  minutes = +b.dataset.min;
+  document.querySelectorAll(".range button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  refresh();
+}));
+const params = new URLSearchParams(location.search);
+if (params.get("minutes")) {
+  minutes = +params.get("minutes");
+  document.querySelectorAll(".range button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.min === minutes));
+}
+if (params.get("service")) selected = params.get("service");
+refresh();
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>

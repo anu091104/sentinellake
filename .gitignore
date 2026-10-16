@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/
+results/_work/
+spark-warehouse/
+metastore_db/
+derby.log
+.DS_Store
+results/mapreduce/
+.venv-*/
+ui/node_modules/

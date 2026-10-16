@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="Archivo, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#566372"/>
+    </marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2F5DA8"/>
+    </marker>
+    <style>
+      .t { font-size: 21px; font-weight: 700; fill: #1A2430; }
+      .s { font-size: 15.5px; fill: #566372; }
+      .col { font-size: 15px; font-weight: 600; fill: #566372; }
+      .layer { font-size: 15px; font-weight: 700; }
+      .box { fill: #FFFFFF; stroke: #B9C3CD; stroke-width: 1.5; }
+      .zone { fill: #F4F7FA; stroke: #CDD5DD; stroke-width: 1.2; }
+      .ln { stroke: #566372; stroke-width: 2; fill: none; marker-end: url(#a); }
+      .lb { stroke: #2F5DA8; stroke-width: 2.4; fill: none; marker-end: url(#ab); }
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#E9EDF1"/>
+
+  <!-- layer bands -->
+  <rect x="740" y="64" width="830" height="376" rx="14" fill="#DDE6EE"/>
+  <text x="760" y="92" class="layer" fill="#3B5168">Batch layer: complete history, hours later</text>
+  <rect x="740" y="470" width="830" height="400" rx="14" fill="#E1EAF6"/>
+  <text x="760" y="498" class="layer" fill="#2F5DA8">Speed layer: last few minutes, seconds later</text>
+
+  <!-- column headings -->
+  <text x="40" y="44" class="col">Ingest</text>
+  <text x="380" y="44" class="col">Process</text>
+  <text x="760" y="44" class="col">Store</text>
+  <text x="1210" y="44" class="col">Analyse and serve</text>
+
+  <!-- ingest -->
+  <rect x="40" y="250" width="290" height="132" rx="10" class="box"/>
+  <text x="62" y="286" class="t">Log generator</text>
+  <text x="62" y="314" class="s">~100 requests/second from</text>
+  <text x="62" y="336" class="s">13 endpoints in 7 services,</text>
+  <text x="62" y="358" class="s">with 4 injected failures</text>
+
+  <rect x="40" y="470" width="290" height="132" rx="10" class="box"/>
+  <text x="62" y="506" class="t">Apache Kafka</text>
+  <text x="62" y="534" class="s">topic api-logs, 6 partitions,</text>
+  <text x="62" y="556" class="s">keyed by service so each</text>
+  <text x="62" y="578" class="s">service stays in order</text>
+
+  <!-- process -->
+  <rect x="380" y="230" width="310" height="440" rx="10" class="box" stroke="#2F5DA8" stroke-width="2"/>
+  <text x="402" y="268" class="t">Spark Structured</text>
+  <text x="402" y="294" class="t">Streaming</text>
+  <text x="402" y="336" class="s">1. Parse and validate JSON</text>
+  <text x="402" y="362" class="s">2. Send broken rows to quarantine</text>
+  <text x="402" y="388" class="s">3. Write raw + Parquet to HDFS</text>
+  <text x="402" y="414" class="s">4. Group into 1-minute windows</text>
+  <text x="422" y="436" class="s">per endpoint (2-min watermark)</text>
+  <text x="402" y="462" class="s">5. Compute volume, 5xx rate,</text>
+  <text x="422" y="484" class="s">p50 / p95 / p99 latency</text>
+  <text x="402" y="510" class="s">6. Run the incident detector</text>
+  <rect x="402" y="534" width="266" height="112" rx="8" fill="#EEF3FA"/>
+  <text x="418" y="562" class="s" fill="#2F5DA8" font-weight="600">Detector</text>
+  <text x="418" y="586" class="s">EWMA baselines per endpoint,</text>
+  <text x="418" y="608" class="s">z-scores, 2-window confirm,</text>
+  <text x="418" y="630" class="s">auto-resolve, de-duplication</text>
+
+  <!-- store: HDFS -->
+  <rect x="760" y="112" width="400" height="310" rx="10" class="box"/>
+  <text x="782" y="146" class="t">HDFS data lake</text>
+  <rect x="780" y="164" width="360" height="72" rx="7" class="zone"/>
+  <text x="796" y="194" class="s" fill="#1A2430" font-weight="600">Raw zone</text>
+  <text x="796" y="218" class="s">JSON exactly as received, by day</text>
+  <rect x="780" y="248" width="360" height="72" rx="7" class="zone"/>
+  <text x="796" y="278" class="s" fill="#1A2430" font-weight="600">Curated zone</text>
+  <text x="796" y="302" class="s">typed Parquet, by day and hour</text>
+  <rect x="780" y="332" width="360" height="72" rx="7" class="zone"/>
+  <text x="796" y="362" class="s" fill="#1A2430" font-weight="600">Quarantine</text>
+  <text x="796" y="386" class="s">rows that failed validation</text>
+
+  <!-- store: serving -->
+  <rect x="760" y="530" width="400" height="120" rx="10" class="box"/>
+  <text x="782" y="566" class="t">Apache Cassandra</text>
+  <text x="782" y="594" class="s">one row per endpoint per minute,</text>
+  <text x="782" y="616" class="s">partitioned by (service, day), 7-day TTL</text>
+
+  <rect x="760" y="690" width="400" height="120" rx="10" class="box"/>
+  <text x="782" y="726" class="t">MongoDB</text>
+  <text x="782" y="754" class="s">one document per incident,</text>
+  <text x="782" y="776" class="s">with a timeline array</text>
+
+  <!-- analyse -->
+  <rect x="1210" y="112" width="340" height="132" rx="10" class="box"/>
+  <text x="1232" y="146" class="t">MapReduce on YARN</text>
+  <text x="1232" y="174" class="s">error hotspots (combiner,</text>
+  <text x="1232" y="196" class="s">partitioner), ranking (sort),</text>
+  <text x="1232" y="218" class="s">log search (map-only)</text>
+
+  <rect x="1210" y="276" width="340" height="132" rx="10" class="box"/>
+  <text x="1232" y="310" class="t">Hive on YARN</text>
+  <text x="1232" y="338" class="s">SLO and error-budget reports,</text>
+  <text x="1232" y="360" class="s">JSON SerDe, ORC vs Parquet,</text>
+  <text x="1232" y="382" class="s">Python TRANSFORM function</text>
+
+  <rect x="1210" y="590" width="340" height="160" rx="10" class="box" stroke="#2F5DA8" stroke-width="2"/>
+  <text x="1232" y="626" class="t">FastAPI + dashboard</text>
+  <text x="1232" y="654" class="s">service health minute by minute,</text>
+  <text x="1232" y="676" class="s">endpoint latency and errors,</text>
+  <text x="1232" y="698" class="s">open and past incidents</text>
+  <text x="1232" y="728" class="s" fill="#2F5DA8">localhost:8000</text>
+
+  <!-- arrows -->
+  <path d="M185 382 L185 466" class="ln"/>
+  <path d="M330 536 L376 536" class="ln"/>
+  <path d="M690 300 C 725 300, 735 200, 776 200" class="ln"/>
+  <path d="M690 330 C 730 330, 740 284, 776 284" class="ln"/>
+  <path d="M690 360 C 728 360, 742 368, 776 368" class="ln"/>
+  <path d="M690 590 L756 590" class="lb"/>
+  <path d="M690 630 C 725 630, 730 750, 756 750" class="lb"/>
+  <path d="M1140 192 C 1175 192, 1180 178, 1206 178" class="ln"/>
+  <path d="M1140 212 C 1180 212, 1175 330, 1206 330" class="ln"/>
+  <path d="M1140 284 C 1175 284, 1180 350, 1206 350" class="ln"/>
+  <path d="M1160 590 C 1185 590, 1185 640, 1206 640" class="lb"/>
+  <path d="M1160 750 C 1185 750, 1185 700, 1206 700" class="lb"/>
+</svg>

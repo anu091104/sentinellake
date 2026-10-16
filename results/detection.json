@@ -1,0 +1,53 @@
+{
+  "windows_evaluated": 4641,
+  "scenarios_injected": 4,
+  "scenarios_detected": 4,
+  "recall": 1.0,
+  "incidents_opened": 4,
+  "false_positives": 0,
+  "precision": 1.0,
+  "mean_time_to_detect_min": 4.0,
+  "scenarios": [
+    {
+      "scenario": "payment-gateway-outage",
+      "kind": "error_burst",
+      "target": "payments POST /v1/charge",
+      "duration_min": 12,
+      "detected": true,
+      "incident_type": "ERROR_BURST",
+      "time_to_detect_min": 1.0,
+      "reason": "5xx rate 20.3% vs normal 0.5%"
+    },
+    {
+      "scenario": "search-index-rebuild",
+      "kind": "latency_spike",
+      "target": "search GET /v1/search",
+      "duration_min": 15,
+      "detected": true,
+      "incident_type": "LATENCY_SPIKE",
+      "time_to_detect_min": 2.0,
+      "reason": "p95 1312 ms is 5.2x the usual 250 ms"
+    },
+    {
+      "scenario": "inventory-silent-failure",
+      "kind": "traffic_drop",
+      "target": "inventory GET /v1/stock",
+      "duration_min": 10,
+      "detected": true,
+      "incident_type": "TRAFFIC_DROP",
+      "time_to_detect_min": 2.0,
+      "reason": "55 req/min vs usual 623 - upstream may be failing silently"
+    },
+    {
+      "scenario": "auth-db-pool-exhaustion",
+      "kind": "latency_ramp",
+      "target": "auth POST /v1/token",
+      "duration_min": 20,
+      "detected": true,
+      "incident_type": "LATENCY_DRIFT",
+      "time_to_detect_min": 11.0,
+      "reason": "p95 has drifted to 262 ms, 2.6x the 100 ms of the last hour"
+    }
+  ],
+  "false_positive_details": []
+}

@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    { "name": "0. Check my setup", "type": "debugpy", "request": "launch",
+      "program": "${workspaceFolder}/tasks.py", "args": ["doctor"], "cwd": "${workspaceFolder}", "console": "integratedTerminal" },
+    { "name": "1. Full demo (generate -> Spark -> evaluate -> dashboard)", "type": "debugpy", "request": "launch",
+      "program": "${workspaceFolder}/tasks.py", "args": ["demo"], "cwd": "${workspaceFolder}", "console": "integratedTerminal" },
+    { "name": "2. Dashboard only (after a demo run)", "type": "debugpy", "request": "launch",
+      "program": "${workspaceFolder}/tasks.py", "args": ["serve"], "cwd": "${workspaceFolder}", "console": "integratedTerminal" },
+    { "name": "3. MapReduce jobs (local runner)", "type": "debugpy", "request": "launch",
+      "program": "${workspaceFolder}/tasks.py", "args": ["mapreduce"], "cwd": "${workspaceFolder}", "console": "integratedTerminal" },
+    { "name": "4. Hive reports (on Spark SQL)", "type": "debugpy", "request": "launch",
+      "program": "${workspaceFolder}/tasks.py", "args": ["hive"], "cwd": "${workspaceFolder}", "console": "integratedTerminal" },
+    { "name": "5. Benchmarks", "type": "debugpy", "request": "launch",
+      "program": "${workspaceFolder}/tasks.py", "args": ["bench"], "cwd": "${workspaceFolder}", "console": "integratedTerminal" },
+    { "name": "6. Run all tests", "type": "debugpy", "request": "launch",
+      "program": "${workspaceFolder}/tasks.py", "args": ["test"], "cwd": "${workspaceFolder}", "console": "integratedTerminal" }
+  ]
+}

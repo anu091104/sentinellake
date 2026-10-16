@@ -1,0 +1,14 @@
+# Laptop mode: run the pipeline, tests and benchmarks without Docker (Windows, macOS, Linux).
+pyspark==3.5.3
+pyarrow>=17
+pandas>=2.2
+numpy>=1.26
+matplotlib>=3.8
+fastapi>=0.115
+uvicorn>=0.32
+httpx>=0.27
+pytest>=8
+mongomock>=4.2
+pymongo>=4.8,<4.9   # mongomock (tests) is not yet compatible with 4.9+
+# Kafka and Cassandra clients are only needed inside Docker (see requirements-app.txt),
+# so laptop mode installs cleanly on Windows without a C++ compiler.

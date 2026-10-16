@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; }
+  body { @apply bg-canvas text-slate-ink font-sans; font-feature-settings: "tnum" 1, "cv11" 1; }
+  :focus-visible { outline: 2px solid #5C7862; outline-offset: 2px; }
+}
+
+@layer components {
+  .card { @apply bg-white rounded-bento shadow-card p-6 min-w-0; }
+  .card-title { @apply text-[15px] font-semibold text-zinc-900; }
+  .muted { @apply text-zinc-500; }
+  .pill { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap; }
+}
+
+/* soft glow on the incident-card wave */
+.glow { filter: drop-shadow(0 0 6px rgba(190, 235, 200, 0.75)); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .fade-in { animation: fade .5s ease both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}

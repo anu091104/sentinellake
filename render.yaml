@@ -1,0 +1,21 @@
+# Render blueprint: hosts the dashboard + API with the replayed 6-hour dataset in demo/.
+# Kafka, Spark, HDFS, Cassandra and MongoDB are not hosted; they run locally or in Docker.
+services:
+  - type: web
+    name: sentinellake
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-web.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SENTINEL_BACKEND
+        value: local
+      - key: SENTINEL_MODE
+        value: demo
+      - key: SENTINEL_LOCAL_DIR
+        value: demo/serving
+      - key: SENTINEL_LAKE_SNAPSHOT
+        value: demo/lake.json

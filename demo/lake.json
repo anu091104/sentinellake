@@ -1,0 +1,39 @@
+{
+  "available": true,
+  "backend": "local",
+  "root": "snapshot of data/lake from the 6-hour replay",
+  "zones": [
+    {
+      "zone": "raw",
+      "name": "Raw zone",
+      "description": "JSON, as received",
+      "bytes": 552653521,
+      "files": 24,
+      "partitions": 1
+    },
+    {
+      "zone": "curated",
+      "name": "Curated zone",
+      "description": "Parquet, partitioned dt/hr",
+      "bytes": 81139980,
+      "files": 24,
+      "partitions": 6
+    },
+    {
+      "zone": "quarantine",
+      "name": "Quarantine",
+      "description": "malformed records",
+      "bytes": 165,
+      "files": 13,
+      "partitions": 1
+    },
+    {
+      "zone": "serving",
+      "name": "Serving store",
+      "description": "minute metrics + incidents",
+      "bytes": 1182404,
+      "files": 2,
+      "partitions": 1
+    }
+  ]
+}

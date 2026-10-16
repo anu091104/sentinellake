@@ -1,0 +1,5 @@
+confluent-kafka==2.6.1
+cassandra-driver==3.29.2
+pymongo==4.10.1
+fastapi==0.115.6
+uvicorn[standard]==0.32.1

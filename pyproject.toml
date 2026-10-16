@@ -1,0 +1,13 @@
+[project]
+name = "sentinellake"
+version = "1.0.0"
+description = "Streaming lakehouse for API reliability analytics: Kafka, Spark, HDFS, MapReduce, Hive, Cassandra, MongoDB"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 110

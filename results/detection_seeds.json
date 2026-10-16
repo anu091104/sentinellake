@@ -1,0 +1,86 @@
+{
+  "days_simulated": 5,
+  "scenarios_detected": 20,
+  "scenarios_injected": 20,
+  "false_positives": 0,
+  "ttd_range_min": {
+    "payment-gateway-outage": [
+      1.0,
+      1.0
+    ],
+    "search-index-rebuild": [
+      2.0,
+      2.0
+    ],
+    "inventory-silent-failure": [
+      2.0,
+      2.0
+    ],
+    "auth-db-pool-exhaustion": [
+      10.0,
+      13.0
+    ]
+  },
+  "runs": [
+    {
+      "seed": 1,
+      "detected": 4,
+      "injected": 4,
+      "false_positives": 0,
+      "ttd_min": {
+        "payment-gateway-outage": 1.0,
+        "search-index-rebuild": 2.0,
+        "inventory-silent-failure": 2.0,
+        "auth-db-pool-exhaustion": 13.0
+      }
+    },
+    {
+      "seed": 2,
+      "detected": 4,
+      "injected": 4,
+      "false_positives": 0,
+      "ttd_min": {
+        "payment-gateway-outage": 1.0,
+        "search-index-rebuild": 2.0,
+        "inventory-silent-failure": 2.0,
+        "auth-db-pool-exhaustion": 11.0
+      }
+    },
+    {
+      "seed": 3,
+      "detected": 4,
+      "injected": 4,
+      "false_positives": 0,
+      "ttd_min": {
+        "payment-gateway-outage": 1.0,
+        "search-index-rebuild": 2.0,
+        "inventory-silent-failure": 2.0,
+        "auth-db-pool-exhaustion": 13.0
+      }
+    },
+    {
+      "seed": 4,
+      "detected": 4,
+      "injected": 4,
+      "false_positives": 0,
+      "ttd_min": {
+        "payment-gateway-outage": 1.0,
+        "search-index-rebuild": 2.0,
+        "inventory-silent-failure": 2.0,
+        "auth-db-pool-exhaustion": 13.0
+      }
+    },
+    {
+      "seed": 5,
+      "detected": 4,
+      "injected": 4,
+      "false_positives": 0,
+      "ttd_min": {
+        "payment-gateway-outage": 1.0,
+        "search-index-rebuild": 2.0,
+        "inventory-silent-failure": 2.0,
+        "auth-db-pool-exhaustion": 10.0
+      }
+    }
+  ]
+}

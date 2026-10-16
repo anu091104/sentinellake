@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<configuration>
+  <property><name>fs.defaultFS</name><value>hdfs://namenode:8020</value></property>
+  <!-- let HiveServer2 (running as root) submit jobs on behalf of the connecting user -->
+  <property><name>hadoop.proxyuser.root.hosts</name><value>*</value></property>
+  <property><name>hadoop.proxyuser.root.groups</name><value>*</value></property>
+  <property><name>io.compression.codecs</name>
+    <value>org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.SnappyCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec</value></property>
+</configuration>
